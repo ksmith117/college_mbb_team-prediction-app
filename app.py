@@ -22,7 +22,7 @@ This tool models relationships between team performance and postseason outcomes 
 # -----------------------
 # LOAD DATA
 # -----------------------
-data = pd.read_csv("Basketball_All_Conf.csv")
+data = pd.read_csv("MB_All_Conf.csv")
 data.columns = data.columns.str.strip().str.lower()
 
 # Fix availability
