@@ -1,6 +1,6 @@
 # College Basketball Team Prediction App
 
-This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in men’s college basketball. The app allows users to generate forward and reverse predictions using data from the 2025–2026 season.
+This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in men’s college basketball. The app allows users to generate forward and reverse predictions across multiple conferences using real data from the 2025–2026 season.
 
 ---
 
@@ -51,27 +51,11 @@ Outputs:
 
 ## Data Sources
 
-- Data was scraped from official athletics websites for the ACC during the 2025–2026 men’s college basketball season
-- Availability data was derived from player injury/availability reports
-- Conference standings were scraped from official conference records
-- Conference tournament results were extracted from official bracket data
-- NCAA tournament participation was identified from the official NCAA bracket
-
-All data was cleaned and standardized into a unified dataset for modeling.
-
----
-
-## Automated Data Pipeline
-
-The project includes a fully automated pipeline that:
-
-- Scrapes availability reports
-- Scrapes conference standings
-- Scrapes conference tournament bracket results
-- Extracts NCAA tournament teams
-- Builds a final modeling dataset
-
-This replaces manual data entry and allows for scalable expansion to other leagues (e.g., NBA).
+- Data was compiled from official athletics websites for Power 4 conferences (ACC, Big Ten, Big 12, SEC) during the 2025–2026 men’s college basketball season
+- Availability data was derived from injury and player status reports
+- Conference standings and records were collected from official conference sources
+- Conference tournament results were manually aggregated and standardized
+- NCAA tournament participation was recorded as a binary indicator (1 = made tournament, 0 = did not)
 
 ---
 
@@ -84,7 +68,7 @@ Formula:
 Efficiency = Weighted Postseason Win % × log(Total Postseason Weight)
 
 Where:
-- Weighted Postseason Win % = performance adjusted by game importance  
+- Weighted Postseason Win % = postseason success adjusted by game importance  
 - Total Postseason Weight = cumulative importance of tournament rounds  
 
 Weights are assigned based on round importance (e.g., Championship > Semifinals > Quarterfinals).
@@ -120,7 +104,7 @@ Higher efficiency values are consistent with stronger postseason performance.
 
 ### Postseason Efficiency Model
 - Captures general trends in tournament success  
-- Less stable due to small sample size and variability  
+- Less stable due to variability in postseason results  
 
 ### Reverse Models
 - Provide approximate estimates of required performance levels  
@@ -133,8 +117,8 @@ Higher efficiency values are consistent with stronger postseason performance.
 - Predictions are based on historical patterns and are not guarantees  
 - Reverse predictions are approximate  
 - Efficiency is a custom metric and may not capture all factors  
-- NCAA tournament detection is based on text extraction from bracket data  
-- Small dataset size limits model generalization  
+- Manual data aggregation may introduce minor inconsistencies  
+- Differences across conferences may affect comparability  
 
 ---
 
@@ -144,8 +128,6 @@ Higher efficiency values are consistent with stronger postseason performance.
 - Streamlit  
 - Pandas  
 - Scikit-learn  
-- Selenium (web scraping)  
-- BeautifulSoup  
 
 ---
 
@@ -153,12 +135,11 @@ Higher efficiency values are consistent with stronger postseason performance.
 
 This project demonstrates:
 
-- End-to-end data pipeline automation  
-- Web scraping of dynamic sports data  
-- Custom feature engineering (postseason efficiency)  
+- Feature engineering using a custom metric  
 - Classification and regression modeling  
-- Model interpretation and visualization  
-- Deployment via Streamlit  
+- Model evaluation and interpretation  
+- Applied sports analytics  
+- End-to-end deployment with Streamlit  
 
 ---
 
