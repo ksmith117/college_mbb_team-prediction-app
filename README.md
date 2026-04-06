@@ -164,4 +164,4 @@ This project demonstrates:
 
 ## Live App
 
-(Add your Streamlit link here)
+https://collegembbteam-prediction-app-hngu834eila4zrxx93bont.streamlit.app/
