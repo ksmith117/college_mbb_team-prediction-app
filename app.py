@@ -86,7 +86,7 @@ def get_reverse_tier_text(tier):
 # -----------------------
 # LOAD DATA
 # -----------------------
-data = pd.read_csv("Basketball_All_Conf.csv")
+data = pd.read_csv("MB_All_Conf.csv")
 
 data.columns = (
     data.columns
