@@ -1,6 +1,6 @@
 # College Basketball Team Prediction App
 
-This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in men's college basketball. The app allows users to simulate forward and reverse predictions across conferences using real data from the 2025–2026 season.
+This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in men's college basketball. The app allows users to generate forward and reverse predictions within specific conferences using real data from the 2025–2026 season.
 
 ---
 
@@ -14,7 +14,9 @@ The application predicts:
 - Postseason efficiency
 - Efficiency tier classification
 
-It also supports reverse predictions, estimating performance inputs based on desired outcomes.
+In this model, **postseason qualification represents making the conference tournament**.
+
+The model does **not directly predict NCAA tournament selection**, but stronger postseason efficiency may imply a stronger overall postseason resume.
 
 ---
 
@@ -51,7 +53,7 @@ Outputs:
 
 - Data was compiled from official athletics websites for the **Power 4 conferences (ACC, Big Ten, Big 12, SEC)** during the 2025–2026 men's college basketball season
 - Postseason performance data was aggregated and standardized across conferences
-- Postseason results were weighted based on game importance (e.g., conference tournaments vs NCAA tournament)
+- Postseason results were weighted based on conference postseason game importance
 - Metrics were aligned across sources to ensure consistency
 
 ---
@@ -62,14 +64,15 @@ Postseason efficiency is a custom metric designed to capture both performance an
 
 It is defined as: Efficiency = Weighted Win % × log(Total Postseason Weight)
 
-
 Where:
-- **Weighted Win %** = postseason success adjusted for game importance  
-- **Total Weight** = cumulative importance of postseason games  
+- **Weighted Win %** = conference postseason success adjusted for game importance
+- **Total Weight** = cumulative importance of postseason games
 
 This metric rewards teams that:
-- Perform well
-- Sustain performance across higher-stakes games
+- Perform well in conference postseason play
+- Sustain performance across higher-impact games
+
+Higher efficiency values indicate stronger conference postseason performance and may imply a more competitive overall postseason resume.
 
 ---
 
@@ -94,7 +97,7 @@ These ranges are specific to the basketball dataset.
 The app uses Random Forest models for both classification and regression:
 
 - Classification:
-  - Predicts postseason qualification
+  - Predicts conference tournament qualification
 
 - Regression:
   - Predicts conference rank
@@ -106,6 +109,7 @@ The app uses Random Forest models for both classification and regression:
 ## Limitations
 
 - Predictions are based on historical patterns and should be interpreted as estimates
+- The model does not directly predict NCAA tournament selection
 - Reverse models are less reliable for certain variables
 - Efficiency is a custom metric and may not capture all aspects of team performance
 - Differences in conference reporting may affect comparability
@@ -125,16 +129,14 @@ The app uses Random Forest models for both classification and regression:
 ## Purpose
 
 This project demonstrates:
-
 - Feature engineering using a custom efficiency metric
 - Supervised machine learning (classification and regression)
 - Model interpretation and applied analytics
+- Applied sports analytics
 - End-to-end workflow from raw data to deployed application
 
 ---
 
 ## Live App
 
-(https://collegembbteam-prediction-app-hngu834eila4zrxx93bont.streamlit.app/)
-
----
+[Add your Streamlit link here]
