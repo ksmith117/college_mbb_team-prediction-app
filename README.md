@@ -1,6 +1,6 @@
-# College Football Team Prediction App
+# College Basketball Team Prediction App
 
-This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in college football. The app allows users to generate forward and reverse predictions within specific conferences using real data from the 2025–2026 season.
+This project is a machine learning web application that models relationships between team performance metrics and postseason outcomes in men’s college basketball. The app allows users to generate forward and reverse predictions using data from the 2025–2026 season.
 
 ---
 
@@ -8,13 +8,14 @@ This project is a machine learning web application that models relationships bet
 
 The application predicts:
 
-- Postseason qualification (0 = No, 1 = Yes)
-- Probability of making the postseason
-- Conference rank
-- Postseason efficiency
-- Efficiency tier classification
+- Conference Tournament Qualification (0 = No, 1 = Yes)
+- NCAA Tournament Qualification (0 = No, 1 = Yes)
+- NCAA Tournament Qualification Probability
+- Conference Rank
+- Postseason Efficiency
+- Efficiency Tier classification
 
-In this model, **postseason qualification represents making a bowl game**.
+In this model, **postseason efficiency reflects conference tournament performance**, while NCAA tournament qualification is modeled separately.
 
 ---
 
@@ -26,8 +27,9 @@ Inputs:
 - Conference Win Percentage
 
 Outputs:
-- Postseason Qualification
-- Postseason Qualification Probability
+- Conference Tournament Qualification
+- NCAA Tournament Qualification
+- NCAA Tournament Qualification Probability
 - Conference Rank
 - Postseason Efficiency
 - Efficiency Tier
@@ -36,7 +38,7 @@ Outputs:
 
 ### Reverse Prediction
 Inputs:
-- Postseason Qualification
+- NCAA Tournament Qualification
 - Conference Rank
 - Postseason Efficiency
 
@@ -49,9 +51,27 @@ Outputs:
 
 ## Data Sources
 
-- Data was compiled from official athletics websites for the Power 4 conferences (ACC, Big Ten, Big 12, SEC) during the 2025–2026 college football season
-- Postseason performance data was aggregated and standardized across conferences
-- Metrics were aligned across sources to ensure consistency
+- Data was scraped from official athletics websites for the ACC during the 2025–2026 men’s college basketball season
+- Availability data was derived from player injury/availability reports
+- Conference standings were scraped from official conference records
+- Conference tournament results were extracted from official bracket data
+- NCAA tournament participation was identified from the official NCAA bracket
+
+All data was cleaned and standardized into a unified dataset for modeling.
+
+---
+
+## Automated Data Pipeline
+
+The project includes a fully automated pipeline that:
+
+- Scrapes availability reports
+- Scrapes conference standings
+- Scrapes conference tournament bracket results
+- Extracts NCAA tournament teams
+- Builds a final modeling dataset
+
+This replaces manual data entry and allows for scalable expansion to other leagues (e.g., NBA).
 
 ---
 
@@ -61,17 +81,19 @@ Postseason efficiency is a custom metric designed to capture both performance an
 
 Formula:
 
-Efficiency = Weighted Win % × log(Total Postseason Weight)
+Efficiency = Weighted Postseason Win % × log(Total Postseason Weight)
 
 Where:
-- Weighted Win % = postseason success adjusted for game importance
-- Total Postseason Weight = cumulative importance of postseason opportunities
+- Weighted Postseason Win % = performance adjusted by game importance  
+- Total Postseason Weight = cumulative importance of tournament rounds  
+
+Weights are assigned based on round importance (e.g., Championship > Semifinals > Quarterfinals).
 
 This metric rewards teams that:
-- Perform well in postseason settings
-- Sustain performance across higher-impact games
+- Advance deeper in tournaments  
+- Perform well in high-impact games  
 
-Higher efficiency values are more consistent with teams that compete for conference championships and the College Football Playoff.
+Higher efficiency values are consistent with stronger postseason performance.
 
 ---
 
@@ -79,77 +101,67 @@ Higher efficiency values are more consistent with teams that compete for confere
 
 | Range | Tier |
 |------|------|
-| 0.00 | No Postseason Appearance |
-| 0.01 – 0.74 | Below Average |
-| 0.75 – 1.24 | Average |
-| 1.25 – 1.99 | Strong |
-| 2.00+ | Elite |
+| 0.00 | No Conference Tournament Appearance |
+| 0.01 – 0.99 | Below Average |
+| 1.00 – 1.49 | Average |
+| 1.50 – 2.99 | Strong |
+| 3.00+ | Elite |
 
 ---
 
 ## Model Performance
 
-### Postseason Classifier
-- Accuracy: 0.857
-- Precision: 0.889
-- Recall: 0.889
-- F1 Score: 0.889
-- ROC AUC: 0.933
+### NCAA Tournament Classifier
+- Accuracy: ~0.89  
+- ROC AUC: ~0.94  
 
 ### Conference Rank Regressor
-- MAE: 1.246
-- RMSE: 1.447
-- R²: 0.799
+- Strong predictive performance based on availability and win %
 
-### Postseason Efficiency Regressor
-- MAE: 0.126
-- RMSE: 0.223
-- R²: -0.111
+### Postseason Efficiency Model
+- Captures general trends in tournament success  
+- Less stable due to small sample size and variability  
 
 ### Reverse Models
-
-Conference Win %:
-- MAE: 0.057
-- RMSE: 0.065
-- R²: 0.901
-
-Availability:
-- MAE: 0.036
-- RMSE: 0.050
-- R²: -0.797
+- Provide approximate estimates of required performance levels  
+- Best used for interpretation, not exact prediction  
 
 ---
 
 ## Limitations
 
-- Predictions are based on historical patterns and are not guarantees
-- Reverse predictions are approximate
-- Efficiency is a custom metric and may not capture all factors
-- Differences in conference reporting may affect consistency
+- Predictions are based on historical patterns and are not guarantees  
+- Reverse predictions are approximate  
+- Efficiency is a custom metric and may not capture all factors  
+- NCAA tournament detection is based on text extraction from bracket data  
+- Small dataset size limits model generalization  
 
 ---
 
 ## Tech Stack
 
-- Python
-- Streamlit
-- Pandas
-- Scikit-learn
-- Google Sheets
+- Python  
+- Streamlit  
+- Pandas  
+- Scikit-learn  
+- Selenium (web scraping)  
+- BeautifulSoup  
 
 ---
 
 ## Purpose
 
 This project demonstrates:
-- Feature engineering using a custom metric
-- Classification and regression modeling
-- Model evaluation and interpretation
-- Applied sports analytics
-- End-to-end deployment workflow
+
+- End-to-end data pipeline automation  
+- Web scraping of dynamic sports data  
+- Custom feature engineering (postseason efficiency)  
+- Classification and regression modeling  
+- Model interpretation and visualization  
+- Deployment via Streamlit  
 
 ---
 
 ## Live App
 
-(https://collegembbteam-prediction-app-hngu834eila4zrxx93bont.streamlit.app/)
+(Add your Streamlit link here)
