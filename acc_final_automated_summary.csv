@@ -1,0 +1,19 @@
+conference,team,conference_ranking,conf_win_percent,win_percent,acc_record,availability,ncaa_tournament,weighted_postseason_points,weighted_postseason_win_pct,postseason_eff,eff_tier
+ACC,Duke,1,0.944,0.921,17-1,0.9053,1,106.0,1.0,4.6634,Elite
+ACC,Virginia,2,0.833,0.833,15-3,0.9185,1,75.0,0.7075,3.2996,Elite
+ACC,Miami (FL),3,0.722,0.743,13-5,0.8407,1,29.0,0.6591,2.4941,Strong
+ACC,North Carolina,4,0.667,0.727,12-6,0.8667,1,7.0,0.5,1.3195,Average
+ACC,Clemson,5,0.667,0.686,12-6,0.893,1,35.0,0.7,2.7384,Strong
+ACC,Louisville,6,0.611,0.686,11-7,0.8881,1,13.0,0.65,1.9472,Strong
+ACC,NC State,7,0.556,0.588,10-8,0.9,1,13.0,0.65,1.9472,Strong
+ACC,Florida State,8,0.556,0.545,10-8,0.8877,0,13.0,0.65,1.9472,Strong
+ACC,California,9,0.5,0.647,9-9,0.6926,0,3.0,0.5,0.8959,Below Average
+ACC,Stanford,10,0.5,0.606,9-9,0.7833,0,1.0,0.5,0.3466,Below Average
+ACC,Virginia Tech,11,0.444,0.594,8-10,0.8426,0,1.0,0.5,0.3466,Below Average
+ACC,SMU,12,0.444,0.588,8-10,0.9208,1,5.0,0.625,1.2997,Average
+ACC,Wake Forest,13,0.389,0.514,7-11,0.9222,0,5.0,0.625,1.2997,Average
+ACC,Syracuse,14,0.333,0.469,6-12,0.8965,0,1.0,0.5,0.3466,Below Average
+ACC,Pittsburgh,15,0.278,0.394,5-13,0.8246,0,5.0,0.625,1.2997,Average
+ACC,Notre Dame,16,0.222,0.419,4-14,0.8037,0,0.0,0.0,0.0,No Postseason Appearance
+ACC,Boston College,17,0.222,0.355,4-14,0.8963,0,0.0,0.0,0.0,No Postseason Appearance
+ACC,Georgia Tech,18,0.111,0.355,2-16,0.8389,0,0.0,0.0,0.0,No Postseason Appearance
