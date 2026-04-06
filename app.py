@@ -12,8 +12,9 @@ st.markdown("""
 This tool models relationships between team performance and postseason outcomes in men's college basketball.
 
 ### Key Outputs
-- Postseason Qualification
-- Postseason Qualification Probability
+- Conference Tournament Qualification
+- NCAA Tournament Qualification
+- NCAA Tournament Qualification Probability
 - Conference Rank
 - Postseason Efficiency
 - Efficiency Tier
@@ -22,7 +23,8 @@ This tool models relationships between team performance and postseason outcomes 
 - Predictions are based on historical patterns, not guarantees
 - Reverse predictions are approximate
 - Source data was compiled from official Power 4 conference athletics websites for the 2025–2026 men's college basketball season
-- In this model, postseason qualification reflects making the conference tournament
+- Postseason efficiency in this model is based on conference tournament performance
+- NCAA tournament qualification is modeled separately
 - Postseason efficiency tiers are based on the observed distribution in the dataset
 """)
 
@@ -47,7 +49,7 @@ def clean_numeric(series, percent=False):
 
 def get_tier(eff):
     if eff <= 0:
-        return "No Postseason Appearance"
+        return "No Conference Tournament Appearance"
     elif eff < 1.0:
         return "Below Average"
     elif eff < 1.75:
@@ -60,28 +62,28 @@ def get_tier(eff):
 
 def get_forward_tier_text(tier):
     if tier == "Below Average":
-        return "This efficiency level suggests a weaker conference postseason profile."
+        return "This efficiency level suggests a weaker conference tournament profile."
     elif tier == "Average":
-        return "This efficiency level suggests a moderate conference postseason profile."
+        return "This efficiency level suggests a moderate conference tournament profile."
     elif tier == "Strong":
-        return "This efficiency level suggests a stronger conference postseason profile and may imply a more competitive overall postseason resume."
+        return "This efficiency level suggests a stronger conference tournament profile and may imply a more competitive overall postseason resume."
     elif tier == "Elite":
-        return "This efficiency level suggests a very strong conference postseason profile and may imply one of the strongest overall postseason resumes."
+        return "This efficiency level suggests a very strong conference tournament profile and may imply one of the strongest overall postseason resumes."
     else:
-        return "This team does not currently project as having a meaningful postseason profile."
+        return "This team does not currently project as having a meaningful conference tournament profile."
 
 
 def get_reverse_tier_text(tier):
     if tier == "Below Average":
-        return "that efficiency tier would reflect a weaker conference postseason profile."
+        return "that efficiency tier would reflect a weaker conference tournament profile."
     elif tier == "Average":
-        return "that efficiency tier would reflect a moderate conference postseason profile."
+        return "that efficiency tier would reflect a moderate conference tournament profile."
     elif tier == "Strong":
-        return "that efficiency tier would reflect a stronger conference postseason profile and may imply a more competitive overall postseason resume."
+        return "that efficiency tier would reflect a stronger conference tournament profile and may imply a more competitive overall postseason resume."
     elif tier == "Elite":
-        return "that efficiency tier would reflect one of the strongest conference postseason profiles and may imply a very strong overall postseason resume."
+        return "that efficiency tier would reflect one of the strongest conference tournament profiles and may imply a very strong overall postseason resume."
     else:
-        return "that efficiency tier would not suggest a meaningful postseason profile."
+        return "that efficiency tier would not suggest a meaningful conference tournament profile."
 
 # -----------------------
 # LOAD DATA
@@ -98,19 +100,21 @@ data.columns = (
 
 data = data.rename(columns={
     "conference_ranking": "conf_rank",
-    "conference_rank": "conf_rank",
-    "postseasoneff": "postseason_eff",
-    "postseason_efficiency": "postseason_eff",
-    "weighted_postseason_eff": "postseason_eff",
     "conf_win_percent": "conf_win_pct",
-    "conf_win_percentage": "conf_win_pct",
-    "conference_win_pct": "conf_win_pct",
-    "conference_win_percentage": "conf_win_pct",
+    "conf_win_percentage": "conf_win_pct"
 })
 
 data = data.loc[:, ~data.columns.duplicated()].copy()
 
-required_cols = ["conference", "availability", "conf_win_pct", "postseason", "conf_rank", "postseason_eff"]
+required_cols = [
+    "conference",
+    "availability",
+    "conf_win_pct",
+    "conf_rank",
+    "conf_tournament",
+    "ncaa_tournament",
+    "postseason_eff"
+]
 
 missing_cols = [c for c in required_cols if c not in data.columns]
 if missing_cols:
@@ -121,14 +125,16 @@ if missing_cols:
 # Clean numeric columns
 data["availability"] = clean_numeric(data["availability"], percent=True)
 data["conf_win_pct"] = clean_numeric(data["conf_win_pct"], percent=True)
-data["postseason"] = clean_numeric(data["postseason"])
 data["conf_rank"] = clean_numeric(data["conf_rank"])
+data["conf_tournament"] = clean_numeric(data["conf_tournament"])
+data["ncaa_tournament"] = clean_numeric(data["ncaa_tournament"])
 data["postseason_eff"] = clean_numeric(data["postseason_eff"])
 
 data = data.dropna(subset=required_cols).copy()
 
-data["postseason"] = data["postseason"].round().astype(int)
 data["conf_rank"] = data["conf_rank"].round().astype(int)
+data["conf_tournament"] = data["conf_tournament"].round().astype(int)
+data["ncaa_tournament"] = data["ncaa_tournament"].round().astype(int)
 
 # -----------------------
 # CONFERENCE FILTER
@@ -146,20 +152,23 @@ if len(filtered_data) < 5:
 # PREP TRAINING DATA
 # -----------------------
 X1 = filtered_data[["availability", "conf_win_pct"]].copy()
-y_post = filtered_data["postseason"].copy()
+y_conf_tourney = filtered_data["conf_tournament"].copy()
+y_ncaa = filtered_data["ncaa_tournament"].copy()
 y_rank = filtered_data["conf_rank"].copy()
 y_eff = filtered_data["postseason_eff"].copy()
 
 X1["availability"] = pd.to_numeric(X1["availability"], errors="coerce")
 X1["conf_win_pct"] = pd.to_numeric(X1["conf_win_pct"], errors="coerce")
-y_post = pd.to_numeric(y_post, errors="coerce")
+y_conf_tourney = pd.to_numeric(y_conf_tourney, errors="coerce")
+y_ncaa = pd.to_numeric(y_ncaa, errors="coerce")
 y_rank = pd.to_numeric(y_rank, errors="coerce")
 y_eff = pd.to_numeric(y_eff, errors="coerce")
 
 train_df = pd.concat(
     [
         X1,
-        y_post.rename("postseason"),
+        y_conf_tourney.rename("conf_tournament"),
+        y_ncaa.rename("ncaa_tournament"),
         y_rank.rename("conf_rank"),
         y_eff.rename("postseason_eff")
     ],
@@ -171,22 +180,25 @@ if len(train_df) < 5:
     st.stop()
 
 X1 = train_df[["availability", "conf_win_pct"]].astype(float)
-y_post = train_df["postseason"].astype(int)
+y_conf_tourney = train_df["conf_tournament"].astype(int)
+y_ncaa = train_df["ncaa_tournament"].astype(int)
 y_rank = train_df["conf_rank"].astype(float)
 y_eff = train_df["postseason_eff"].astype(float)
 
 # -----------------------
 # TRAIN MODELS
 # -----------------------
-model_post = RandomForestClassifier(random_state=42)
+model_conf_tourney = RandomForestClassifier(random_state=42)
+model_ncaa = RandomForestClassifier(random_state=42)
 model_rank = RandomForestRegressor(random_state=42)
 model_eff = RandomForestRegressor(random_state=42)
 
-model_post.fit(X1, y_post)
+model_conf_tourney.fit(X1, y_conf_tourney)
+model_ncaa.fit(X1, y_ncaa)
 model_rank.fit(X1, y_rank)
 model_eff.fit(X1, y_eff)
 
-X2 = train_df[["postseason", "conf_rank", "postseason_eff"]].astype(float)
+X2 = train_df[["ncaa_tournament", "conf_rank", "postseason_eff"]].astype(float)
 y_avail = train_df["availability"].astype(float)
 y_conf = train_df["conf_win_pct"].astype(float)
 
@@ -232,8 +244,9 @@ if mode == "Forward":
             "conf_win_pct": conf_win_pct
         }])
 
-        post = int(model_post.predict(X_pred)[0])
-        prob = float(model_post.predict_proba(X_pred)[0][1])
+        conf_tourney = int(model_conf_tourney.predict(X_pred)[0])
+        ncaa = int(model_ncaa.predict(X_pred)[0])
+        ncaa_prob = float(model_ncaa.predict_proba(X_pred)[0][1])
         rank = int(round(float(model_rank.predict(X_pred)[0])))
         eff = float(model_eff.predict(X_pred)[0])
 
@@ -245,8 +258,9 @@ if mode == "Forward":
 
         st.write("### Results")
         st.write(f"**Conference:** {selected_conf}")
-        st.write(f"**Postseason Qualification:** {post}")
-        st.write(f"**Postseason Qualification Probability:** {round(prob, 3)}")
+        st.write(f"**Conference Tournament Qualification:** {conf_tourney}")
+        st.write(f"**NCAA Tournament Qualification:** {ncaa}")
+        st.write(f"**NCAA Tournament Qualification Probability:** {round(ncaa_prob, 3)}")
         st.write(f"**Conference Rank:** {rank}")
         st.write(f"**Postseason Efficiency:** {round(eff, 3)}")
         st.write(f"**Efficiency Tier:** {tier}")
@@ -254,29 +268,20 @@ if mode == "Forward":
         st.markdown("### What This Means")
         st.info(
             f"This model predicts that a team with {availability_pct}% availability "
-            f"and a {conf_win_pct_input}% conference win rate has a "
-            f"{round(prob * 100, 1)}% chance of making the conference tournament. "
-            f"They are projected to finish around {rank} in the conference. "
+            f"and a {conf_win_pct_input}% conference win rate is likely to {'make' if conf_tourney == 1 else 'miss'} the conference tournament. "
+            f"The team is projected to finish around {rank} in the conference. "
+            f"The model also estimates a {round(ncaa_prob * 100, 1)}% probability of making the NCAA tournament. "
             f"With a postseason efficiency score of {round(eff, 3)}, this team is performing at a '{tier}' level. "
             f"{tier_text}"
         )
 
         st.markdown("### Metric Explanations")
-        st.write(
-            f"**Postseason Qualification ({post})**: Indicates whether the model predicts the team will make the conference tournament (1 = yes, 0 = no)."
-        )
-        st.write(
-            f"**Postseason Qualification Probability ({round(prob, 3)})**: The model's confidence that the team will make the conference tournament."
-        )
-        st.write(
-            f"**Conference Rank ({rank})**: The expected final standing within the conference."
-        )
-        st.write(
-            f"**Postseason Efficiency ({round(eff, 3)})**: A custom metric combining postseason success and game importance. Higher values suggest stronger performance in conference postseason play."
-        )
-        st.write(
-            f"**Efficiency Tier ({tier})**: A category that makes the efficiency score easier to interpret."
-        )
+        st.write(f"**Conference Tournament Qualification ({conf_tourney})**: Indicates whether the model predicts the team will make the conference tournament (1 = yes, 0 = no).")
+        st.write(f"**NCAA Tournament Qualification ({ncaa})**: Indicates whether the model predicts the team will make the NCAA tournament (1 = yes, 0 = no).")
+        st.write(f"**NCAA Tournament Qualification Probability ({round(ncaa_prob, 3)})**: The model's confidence that the team will make the NCAA tournament.")
+        st.write(f"**Conference Rank ({rank})**: The expected final standing within the conference.")
+        st.write(f"**Postseason Efficiency ({round(eff, 3)})**: A custom metric based on conference tournament postseason performance. Higher values suggest stronger performance in conference postseason play.")
+        st.write(f"**Efficiency Tier ({tier})**: A category that makes the efficiency score easier to interpret.")
 
 # -----------------------
 # REVERSE MODE
@@ -284,8 +289,8 @@ if mode == "Forward":
 else:
     st.subheader(f"Reverse Prediction — {selected_conf}")
 
-    postseason = st.number_input(
-        "Postseason (0 or 1)",
+    ncaa_tournament = st.number_input(
+        "NCAA Tournament (0 or 1)",
         min_value=0,
         max_value=1,
         value=1,
@@ -310,7 +315,7 @@ else:
 
     if st.button("Predict Reverse"):
         X_pred = pd.DataFrame([{
-            "postseason": postseason,
+            "ncaa_tournament": ncaa_tournament,
             "conf_rank": conf_rank,
             "postseason_eff": postseason_eff
         }])
@@ -335,28 +340,22 @@ else:
 
         st.markdown("### What This Means")
         st.info(
-            f"To reach a conference tournament outcome of {postseason} with a conference rank of {conf_rank}, "
+            f"To reach an NCAA tournament outcome of {ncaa_tournament} with a conference rank of {conf_rank}, "
             f"a team would likely need about {avail_pred_pct}% availability and about a "
             f"{conf_pred_pct}% conference win rate. "
             f"A postseason efficiency value in the '{tier}' range would indicate that {tier_text}"
         )
 
         st.markdown("### Metric Explanations")
-        st.write(
-            f"**Predicted Availability ({avail_pred_pct}%)**: The estimated player availability associated with this outcome profile."
-        )
-        st.write(
-            f"**Predicted Conference Win % ({conf_pred_pct}%)**: The estimated in-conference win rate associated with this outcome profile."
-        )
-        st.write(
-            f"**Efficiency Tier ({tier})**: The selected postseason efficiency translated into a performance category."
-        )
+        st.write(f"**Predicted Availability ({avail_pred_pct}%)**: The estimated player availability associated with this outcome profile.")
+        st.write(f"**Predicted Conference Win % ({conf_pred_pct}%)**: The estimated in-conference win rate associated with this outcome profile.")
+        st.write(f"**Efficiency Tier ({tier})**: The selected postseason efficiency translated into a performance category.")
 
 st.markdown("""
 ---
 ### Efficiency Interpretation (Basketball)
 
-- 0.00 → No Postseason Appearance
+- 0.00 → No Conference Tournament Appearance
 - 0.01–0.99 → Below Average
 - 1.00–1.74 → Average
 - 1.75–2.74 → Strong
